@@ -4,7 +4,9 @@
 #' It then obtains the remaining public sequences from BOLD for the given taxon and marker combination.
 #' It outputs a fasta file containing marker sequence with the taxonomy information (names only) for 
 #' kingdom, phylum, class, order, family, genus, and species presented in the format required for
-#' a dada2 reference database. 
+#' a dada2 reference database.
+#' NB THIS FUNCTION CURRENTLY DOESN'T WORK - SEEMS TO BE DUE TO A BUG IN bold::bold_specimens
+#' Have raised at https://github.com/ropensci/bold/issues/46 
 #' 
 #' @param taxon a taxon name as character string
 #' @param marker One or more marker names in BOLD format (character string with pipe delimiter separating names)
