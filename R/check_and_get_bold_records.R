@@ -5,8 +5,8 @@
 #' It outputs a fasta file containing marker sequence with the taxonomy information (names only) for 
 #' kingdom, phylum, class, order, family, genus, and species presented in the format required for
 #' a dada2 reference database.
-#' NB THIS FUNCTION CURRENTLY DOESN'T WORK - SEEMS TO BE DUE TO A BUG IN bold::bold_specimens
-#' Have raised at https://github.com/ropensci/bold/issues/46 
+#' NB THIS FUNCTION CURRENTLY DOESN'T WORK FOR TAXA WITH A LOT OF BOLD RECORDS - SEEMS TO BE DUE TO A BUG IN bold::bold_specimens
+#' Have raised at https://github.com/ropensci/bold/issues/47 
 #' 
 #' @param taxon a taxon name as character string
 #' @param marker One or more marker names in BOLD format (character string with pipe delimiter separating names)
@@ -58,6 +58,9 @@ check_and_get_bold_records <- function(taxon, marker, mapping_file_name, dada2_f
           bold_sequences <- bold_sequences[!is.null(bold_sequences)]
           message(paste("Obtained", length(bold_sequences), "records for", marker))
           extracted_sequences <- unlist(lapply(bold_sequences, "[[", "sequence"))
+          # remove terminal "\r" from sequences
+          ext1 <- lapply(str_split(extracted_sequences, pattern="\r"), "[[", 1)
+          extracted_sequences <- unlist(ext1)
           extracted_ids <- unlist(lapply(bold_sequences, "[[", "id"))
           
           y <- as.matrix(strsplit(extracted_sequences, ""), tolower)
@@ -66,6 +69,22 @@ check_and_get_bold_records <- function(taxon, marker, mapping_file_name, dada2_f
           names(reformatted) <- taxonomy_formatted[extracted_ids]
           
           ape::write.dna(reformatted, file=dada2_file_name, format = "fasta", nbcol=1, blocksep=0, colw=1e06)
+          
+          # replace any blank lines...
+          
+          system(command=paste("awk 'NF > 0' <", dada2_file_name, ">", paste(dada2_file_name, "_2", sep="")))
+          system(command=paste("mv", paste(dada2_file_name, "_2", sep=""), dada2_file_name))
+          
+          # replace any weird characters
+          
+          system(command=paste("sed -E 's/(^>.*$)/#\\1#/'", dada2_file_name,
+                               "| tr -d '\r' | tr -d '\n' | sed -e 's/$/#/' | tr '#' '\n' | sed -e '/^$/d' >", paste(dada2_file_name, "_2", sep="")))
+          system(command=paste("mv", paste(dada2_file_name, "_2", sep=""), dada2_file_name))
+          system(command=paste("sed '/^>/ s/$/;/'", dada2_file_name, "| sed 's/; ;/;;/g' | sed 's/ /_/g' >", paste(dada2_file_name, "_2", sep="")))
+          system(command=paste("mv", paste(dada2_file_name, "_2", sep=""), dada2_file_name))
+          system(command=paste("awk '{ if ($0 !~ />/) {print toupper($0)} else {print $0} }'", dada2_file_name, ">", paste(dada2_file_name, "_2", sep="")))
+          system(command=paste("mv", paste(dada2_file_name, "_2", sep=""), dada2_file_name))
+          
         }
       }
     }

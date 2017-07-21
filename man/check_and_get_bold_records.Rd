@@ -21,6 +21,8 @@ It then obtains the remaining public sequences from BOLD for the given taxon and
 It outputs a fasta file containing marker sequence with the taxonomy information (names only) for 
 kingdom, phylum, class, order, family, genus, and species presented in the format required for
 a dada2 reference database.
+NB THIS FUNCTION CURRENTLY DOESN'T WORK - SEEMS TO BE DUE TO A BUG IN bold::bold_specimens
+Have raised at https://github.com/ropensci/bold/issues/46
 }
 \examples{
 check_and_get_bold_records(taxon="Athericidae", marker="COI-5P|COI-3P", mapping_file_name=make_mapping_name(taxon="Athericidae", directory="~/Documents/output/"), dada2_file_name=paste("~/Documents/output/", "Athericidae_extra_bold_seq_dada2.fasta", sep=""))

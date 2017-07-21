@@ -11,6 +11,7 @@ Depends:
 Imports:
     taxize,
     rentrez,
+    bold (>= 0.5.0),
     stringr,
     ape,
     XML,
